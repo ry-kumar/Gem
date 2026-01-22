@@ -43,9 +43,9 @@ jobs:
         uses: actions/deploy-pages@v4
       name: Build and Push to GHCR
 
-on:
-  push:
-    branches: ["main"]
+      on:
+        push:
+          branches: ["main"]
 
 # --- THIS IS THE CRITICAL ADDITION ---
 permissions:
@@ -95,5 +95,39 @@ jobs:
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
 
+
+        name: Build and Push to GHCR
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # Note: No capital letters in the tag below
+          tags: ghcr.io/${{ github.repository_owner }}/my-web-app:latest
+          # We simplified the label to a single line to avoid line 31 errors
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
         
       
