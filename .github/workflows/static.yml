@@ -75,5 +75,25 @@ jobs:
           # Make sure your image name is all lowercase
           tags: ghcr.io/${{ github.repository_owner }}/my-web-app:latest
 
+
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # We use lowercase for 'my-web-app' to avoid naming errors
+          tags: ghcr.io/${{ github.repository_owner }}/my-web-app:latest
+          # This LABEL connects the package to your repo sidebar
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+
         
       
